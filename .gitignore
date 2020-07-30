@@ -1,0 +1,9 @@
+*.app/
+Release/
+Debug/
+*.o
+moc*
+Makefile*
+*.txt
+*.bin
+*.text
