@@ -5,6 +5,8 @@
 
 WorkerThread::ParseUnion    rxdata_union;
 ParseStruct   _parse;
+float imu_data[7];
+float attitude[3];
 
 /**
  * crc32计算表
@@ -212,16 +214,36 @@ void WorkerThread::data_extraction(void)
      */
     if(_parse.id==0x02)
     {
-        emit signal_sendMavAHRSValue(rxdata_union.AHRS_DATA.imu[0],
-                                rxdata_union.AHRS_DATA.imu[1],
-                                rxdata_union.AHRS_DATA.imu[2],
-                                rxdata_union.AHRS_DATA.imu[3],
-                                rxdata_union.AHRS_DATA.imu[4],
-                                rxdata_union.AHRS_DATA.imu[5],
-                                rxdata_union.AHRS_DATA.roll,
-                                rxdata_union.AHRS_DATA.pitch,
-                                rxdata_union.AHRS_DATA.yaw,
-                                rxdata_union.AHRS_DATA.imu[6]
+        /**
+         * 顺序得到加速度计、陀螺、温度数据
+         * 加速度计单位是g，陀螺单位是deg/s，温度单位是摄氏度
+         */
+        for(int i=0;i<7;i++)
+        imu_data[i] = rxdata_union.AHRS_DATA.imu[i];
+
+        /**
+         * 得到横滚，俯仰，航向角，单位是deg
+         */
+        attitude[0] = rxdata_union.AHRS_DATA.roll;
+        attitude[1] = rxdata_union.AHRS_DATA.pitch;
+        attitude[2] = rxdata_union.AHRS_DATA.yaw;
+
+
+
+        /**
+         * 传到qt界面显示
+         */
+        emit signal_sendMavAHRSValue(
+                                    imu_data[0],//ax
+                                    imu_data[1],//ay
+                                    imu_data[2],//az
+                                    imu_data[3],//gx
+                                    imu_data[4],//gy
+                                    imu_data[5],//gz
+                                    attitude[0], //roll
+                                    attitude[1], //pitch
+                                    attitude[2], //yaw
+                                    imu_data[6] //temperature
                                 );
                                     
     }
